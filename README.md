@@ -1,3 +1,5 @@
+[![Deploy to Hatchable](https://hatchable.com/deploy-button.svg)](https://hatchable.com/deploy?repo=https://github.com/arkayush072-bit/FINnews)
+
 # FinNews AI
 
 Classic financial news briefing: FastAPI plus vanilla HTML, CSS, and JavaScript.
