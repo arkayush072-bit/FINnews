@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FinNews AI - AI-powered financial news simplification dashboard" />
+  <title>FinNews AI — The financial news briefing</title>
+  <meta name="application-version" content="classic-2" />
+
+  <link rel="stylesheet" href="/static/style.css?v=classic-2" />
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to news</a>
+  <div class="edition-bar">
+    <div class="container edition-inner">
+      <time id="editionDate"></time>
+      <span>A little context. A clearer perspective.</span>
+    </div>
+  </div>
+  <header>
+    <div class="container nav">
+      <div class="masthead-note">Business. Markets. Perspective.</div>
+      <div>
+        <a class="brand" href="/" aria-label="FinNews AI home">FinNews <span class="brand-ai">AI</span></a>
+        <div class="brand-caption">The financial news briefing</div>
+      </div>
+      <div class="nav-actions">
+        <span class="nav-note">Read the news. Understand the story.</span>
+        <button class="secondary-btn" id="refreshBtn">Refresh</button>
+      </div>
+    </div>
+      <nav class="container filters" id="filters" aria-label="News categories">
+        <button class="filter active" data-query="finance">Home</button>
+        <button class="filter" data-query="stock market">Markets</button>
+        <button class="filter" data-query="business companies">Business</button>
+        <button class="filter" data-query="economy inflation">Economy</button>
+        <button class="filter" data-query="technology">Technology</button>
+        <button class="filter" data-query="India finance">India</button>
+        <button class="filter" data-query="global economy">Global</button>
+      </nav>
+  </header>
+
+  <main class="container" id="mainContent">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Perspective beyond the headlines</div>
+        <h1>The world moves fast.<br><em>Make sense of it.</em></h1>
+        <p>
+          Your daily lens on business, markets, and the economy. Explore the
+          headlines, unpack the language, and find the story behind the numbers.
+        </p>
+      </div>
+
+      <aside class="reading-desk" aria-label="Your reading desk">
+        <div class="desk-title">Your reading desk</div>
+        <div class="stats">
+        <div class="stat">
+          <strong id="articleCount">0</strong>
+          <span>Articles loaded</span>
+        </div>
+        <div class="stat">
+          <strong id="modeLabel">…</strong>
+          <span>News source mode</span>
+        </div>
+        </div>
+        <p>Big ideas, explained in plain language.</p>
+      </aside>
+    </section>
+
+    <section>
+      <div class="toolbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+          <input id="searchInput" type="search" aria-label="Search financial news" maxlength="200"
+                 placeholder="Search a company, topic, or headline…" />
+        </div>
+        <button class="primary-btn" id="searchBtn">Search News</button>
+        <button class="secondary-btn" id="latestBtn">Latest</button>
+      </div>
+
+
+    </section>
+
+    <div class="section-head">
+      <h2>The latest briefing</h2>
+      <div class="edition-actions">
+        <div class="status" id="status" role="status" aria-live="polite">Ready</div>
+        <button class="secondary-btn" id="batchBtn" disabled>Summarize briefing</button>
+      </div>
+    </div>
+
+    <div class="notice" id="demoBanner" hidden>Demo edition — these fictional sample articles illustrate the reading experience. Searches and sections show the same examples.</div>
+    <section aria-label="News articles" class="news-grid" id="newsGrid"></section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-brand">FinNews <span>AI</span></div>
+      <div class="footer-copy">FinNews AI provides AI-generated summaries for educational and informational
+      purposes only. It is not financial, investment, or trading advice.
+      Always verify important information using the original source.</div>
+    </div>
+  </footer>
+
+  <!-- AI SUMMARY MODAL -->
+  <div class="modal-backdrop" id="summaryModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="summaryTitle">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow">AI Simplification</div>
+          <h2 id="summaryTitle">Analyzing article...</h2>
+        </div>
+        <button class="close" id="closeSummary" aria-label="Close summary">×</button>
+      </div>
+      <div class="ai-content" id="aiContent">
+        <div class="empty">Analyzing article with AI...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API SETTINGS MODAL REMOVED -->
+
+  <script src="/static/app.js?v=classic-2" defer></script>
+</body>
+</html>
