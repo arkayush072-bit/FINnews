@@ -9,6 +9,7 @@ export default async function news(req, res) {
   const rawSize = req.query?.page_size ?? "12";
   const pageSize = Number(rawSize);
 
+  // Validate input
   if (
     typeof query !== "string" ||
     !query.trim() ||
@@ -35,35 +36,29 @@ export default async function news(req, res) {
       }
     });
 
-    if (!result) {
-      return res.status(200).json({
-        status: "demo",
-        message: "NewsAPI returned no response.",
-        articles: normalizeArticles(DEMO_ARTICLES, pageSize)
-      });
-    }
+    console.log("NEWSAPI RESULT:", result);
 
     if (
       result.status < 200 ||
       result.status >= 300 ||
       result.body?.status !== "ok"
     ) {
-      return res.status(200).json({
-        status: "demo",
-        message: "NewsAPI returned an error.",
-        upstreamStatus: result.status,
-        upstreamCode: result.body?.code ?? null,
-        upstreamMessage: result.body?.message ?? null,
-        articles: normalizeArticles(DEMO_ARTICLES, pageSize)
+      console.error("NEWSAPI RESPONSE ERROR:", result);
+
+      return res.status(502).json({
+        status: "error",
+        errorCode: result.body?.code ?? null,
+        errorMessage: result.body?.message ?? "NewsAPI rejected the request",
+        upstreamStatus: result.status
       });
     }
 
     const articles = normalizeArticles(
-      result.body?.articles || [],
+      result.body.articles || [],
       pageSize
     );
 
-    return res.status(200).json({
+    return res.json({
       status: "ok",
       totalResults: articles.length,
       articles,
@@ -71,13 +66,33 @@ export default async function news(req, res) {
     });
 
   } catch (error) {
-    return res.status(200).json({
-      status: "demo",
-      message: "NewsAPI connection failed.",
+    console.error("NEWSAPI ERROR:", error);
+
+    // Hatchable API connection has not been configured
+    if (
+      error?.code === "SetupRequired" ||
+      error?.name === "SetupRequired"
+    ) {
+      const articles = normalizeArticles(
+        DEMO_ARTICLES,
+        pageSize
+      );
+
+      return res.json({
+        status: "ok",
+        totalResults: articles.length,
+        articles,
+        mode: "demo"
+      });
+    }
+
+    // Return the actual error so we can diagnose it
+    return res.status(502).json({
+      status: "error",
       errorCode: error?.code ?? null,
       errorName: error?.name ?? null,
       errorMessage: error?.message ?? String(error),
-      articles: normalizeArticles(DEMO_ARTICLES, pageSize)
+      errorDetails: error?.details ?? null
     });
   }
 }
