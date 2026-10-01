@@ -10,6 +10,6 @@ base_url = "https://newsapi.org/v2"
 auth = "api_key"
 
 [[api]]
-name = "mistral"
+name = "groq"
 base_url = "https://api.groq.com/openai/v1"
 auth = "api_key"
