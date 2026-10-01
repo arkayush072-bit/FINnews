@@ -37,14 +37,15 @@ export default async function summarize(req, res) {
   }
 
   try {
-    const result = await api.call("groq", {
+    const result = await api.call("mistral", {
       method: "POST",
-      path: "/chat/completions",
+      path: "/v1/chat/completions",
 
       body: {
-        model: "openai/gpt-oss-120b",
+        model: "mistral-small-latest",
         temperature: 0.2,
         max_tokens: 900,
+
         response_format: {
           type: "json_object"
         },
@@ -62,20 +63,25 @@ export default async function summarize(req, res) {
       }
     });
 
-    console.log("GROQ RESULT:", JSON.stringify(result));
+    console.log("MISTRAL RESULT:", JSON.stringify(result));
 
     if (
       !result ||
       result.status < 200 ||
       result.status >= 300
     ) {
-      console.error("GROQ RESPONSE ERROR:", JSON.stringify(result));
+      console.error(
+        "MISTRAL RESPONSE ERROR:",
+        JSON.stringify(result)
+      );
 
       return res.status(502).json({
         status: "error",
+        source: "mistral",
         upstreamStatus: result?.status ?? null,
         upstreamCode: result?.body?.error?.code ?? null,
-        upstreamMessage: result?.body?.error?.message ?? null
+        upstreamMessage: result?.body?.error?.message ?? null,
+        message: "Mistral rejected the summarization request."
       });
     }
 
@@ -85,19 +91,21 @@ export default async function summarize(req, res) {
     if (!content) {
       return res.status(502).json({
         status: "error",
-        detail: "Groq returned an empty response."
+        source: "mistral",
+        detail: "Mistral returned an empty response."
       });
     }
 
     const summary = parseSummary(content);
 
-    return res.json(summary);
+    return res.status(200).json(summary);
 
   } catch (error) {
-    console.error("GROQ ERROR:", error);
+    console.error("MISTRAL ERROR:", error);
 
     return res.status(502).json({
       status: "error",
+      source: "mistral",
       errorCode: error?.code ?? null,
       errorName: error?.name ?? null,
       errorMessage: error?.message ?? String(error),
