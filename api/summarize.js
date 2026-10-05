@@ -37,15 +37,18 @@ export default async function summarize(req, res) {
   }
 
   try {
-    // GROQ AI
-    const result = await api.call("groq", {
+    const result = await api.call("mistral", {
       method: "POST",
-      path: "/chat/completions",
+      path: "/v1/chat/completions",
 
       body: {
-        model: "openai/gpt-oss-120b",
+        model: "mistral-small-latest",
         temperature: 0.2,
         max_tokens: 900,
+
+        response_format: {
+          type: "json_object"
+        },
 
         messages: [
           {
@@ -60,52 +63,49 @@ export default async function summarize(req, res) {
       }
     });
 
-    console.log("GROQ RESULT:", JSON.stringify(result));
+    console.log("MISTRAL RESULT:", JSON.stringify(result));
 
-    // Check Groq response
     if (
       !result ||
       result.status < 200 ||
       result.status >= 300
     ) {
       console.error(
-        "GROQ RESPONSE ERROR:",
+        "MISTRAL RESPONSE ERROR:",
         JSON.stringify(result)
       );
 
       return res.status(502).json({
         status: "error",
-        source: "groq",
+        source: "mistral",
         upstreamStatus: result?.status ?? null,
         upstreamCode: result?.body?.error?.code ?? null,
         upstreamMessage: result?.body?.error?.message ?? null,
-        message: "Groq rejected the summarization request."
+        message: "Mistral rejected the summarization request."
       });
     }
 
-    // Get AI response
     const content =
       result.body?.choices?.[0]?.message?.content;
 
     if (!content) {
       return res.status(502).json({
         status: "error",
-        source: "groq",
-        detail: "Groq returned an empty response."
+        source: "mistral",
+        detail: "Mistral returned an empty response."
       });
     }
 
-    // Convert AI response into FinNews summary format
     const summary = parseSummary(content);
 
     return res.status(200).json(summary);
 
   } catch (error) {
-    console.error("GROQ ERROR:", error);
+    console.error("MISTRAL ERROR:", error);
 
     return res.status(502).json({
       status: "error",
-      source: "groq",
+      source: "mistral",
       errorCode: error?.code ?? null,
       errorName: error?.name ?? null,
       errorMessage: error?.message ?? String(error),
