@@ -1,115 +1,26 @@
-import { api } from "hatchable";
-import { SUMMARY_PROMPT, parseSummary, text } from "lib/finnews.js";
+import Groq from "groq-sdk";
 
-export const access = "public";
-export const methods = ["POST"];
+const groq = new Groq();
 
-export default async function summarize(req, res) {
-  const body = req.body;
-
-  // Validate request body
-  if (
-    !body ||
-    typeof body !== "object" ||
-    Array.isArray(body) ||
-    ["title", "description", "content"].some(
-      key => body[key] != null && typeof body[key] !== "string"
-    )
-  ) {
-    return res.status(422).json({
-      detail:
-        "Supply an article object with string title, description, and content fields."
-    });
-  }
-
-  // Prepare article text
-  const articleText = [body.title, body.description, body.content]
-    .map(text)
-    .map(value => value.trim())
-    .filter(Boolean)
-    .join("\n\n")
-    .slice(0, 6500);
-
-  if (!articleText) {
-    return res.status(400).json({
-      detail: "Article has no content to summarize."
-    });
-  }
-
+export async function summarize(article) {
   try {
-    const result = await api.call("groq", {
-      method: "POST",
-      path: "/chat/completions",
-
-      body: {
-        model: "openai/gpt-oss-120b",
-        temperature: 0.2,
-        max_tokens: 900,
-
-        response_format: {
-          type: "json_object"
-        },
-
-        messages: [
-          {
-            role: "system",
-            content: SUMMARY_PROMPT
-          },
-          {
-            role: "user",
-            content: articleText
-          }
-        ]
-      }
+    const completion = await groq.chat.completions.create({
+      model: process.env.GROQ_MODEL, // set in config; check Groq's models page
+      messages: [
+        { role: "system", content: "Summarize this financial news article in three sentences." },
+        { role: "user", content: article },
+      ],
     });
-
-    console.log("GROQ RESULT:", JSON.stringify(result));
-
-    if (
-      !result ||
-      result.status < 200 ||
-      result.status >= 300
-    ) {
-      console.error(
-        "GROQ RESPONSE ERROR:",
-        JSON.stringify(result)
-      );
-
-      return res.status(502).json({
-        status: "error",
-        source: "groq",
-        upstreamStatus: result?.status ?? null,
-        upstreamCode: result?.body?.error?.code ?? null,
-        upstreamMessage: result?.body?.error?.message ?? null,
-        message: "Groq rejected the summarization request."
-      });
+    return { ok: true, summary: completion.choices[0]?.message?.content ?? "" };
+  } catch (err) {
+    if (err.status === 401) {
+      console.error("Groq returned 401 (invalid_api_key). Check the key, then Groq's status page.");
+      return { ok: false, status: 503, error: "Summaries are temporarily unavailable." };
     }
-
-    const content =
-      result.body?.choices?.[0]?.message?.content;
-
-    if (!content) {
-      return res.status(502).json({
-        status: "error",
-        source: "groq",
-        detail: "Groq returned an empty response."
-      });
+    if (err.status === 429) {
+      return { ok: false, status: 429, error: "Too many requests. Try again shortly." };
     }
-
-    const summary = parseSummary(content);
-
-    return res.status(200).json(summary);
-
-  } catch (error) {
-    console.error("GROQ ERROR:", error);
-
-    return res.status(502).json({
-      status: "error",
-      source: "groq",
-      errorCode: error?.code ?? null,
-      errorName: error?.name ?? null,
-      errorMessage: error?.message ?? String(error),
-      errorDetails: error?.details ?? null
-    });
+    console.error("Groq request failed:", err.status, err.message);
+    return { ok: false, status: 502, error: "Summary service error." };
   }
 }
