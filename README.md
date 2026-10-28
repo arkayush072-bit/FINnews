@@ -5,7 +5,7 @@
 # FinNews AI
 
 
- Documents for  project  :-https://drive.google.com/file/d/1sledVCFoUf2RXKOstpfF14RFk1XmZ9f3/view?usp=drivesdk
+ Documents for  project  :-(https://drive.google.com/drive/folders/1pukpUQ9_-b5Q7uhuQ21a1Gvz2h6ZP1D3?usp=drive_link)
  
 Classic financial news briefing: FastAPI plus vanilla HTML, CSS, and JavaScript.
 NewsAPI supplies news; Groq simplifies articles. Missing provider credentials produce
