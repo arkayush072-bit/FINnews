@@ -1,7 +1,12 @@
 [![Deploy to Hatchable](https://hatchable.com/deploy-button.svg)](https://hatchable.com/deploy?repo=https://github.com/arkayush072-bit/FINnews)
-Documents for  project :-https://drive.google.com/file/d/1sledVCFoUf2RXKOstpfF14RFk1XmZ9f3/view?usp=drivesdk
+ 
+ 
+ 
 # FinNews AI
 
+
+ Documents for  project  :-https://drive.google.com/file/d/1sledVCFoUf2RXKOstpfF14RFk1XmZ9f3/view?usp=drivesdk
+ 
 Classic financial news briefing: FastAPI plus vanilla HTML, CSS, and JavaScript.
 NewsAPI supplies news; Groq simplifies articles. Missing provider credentials produce
 clearly labeled demo articles/explanations. Configured provider failures stay errors.
